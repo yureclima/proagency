@@ -87,3 +87,5 @@ const SplineSceneBasic = memo(() => {
       </div>
     </Card>
   )
+}
+)
