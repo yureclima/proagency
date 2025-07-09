@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Spotlight } from "@/components/ui/spotlight"
 import { TextScramble } from "@/components/ui/text-scramble"
  
-const SplineSceneBasic = memo(() => {
+export const SplineSceneBasic = memo(() => {
   const SplineScene = React.lazy(() =>
     import("@/components/ui/splite").then(m => ({ default: m.SplineScene }))
   );
