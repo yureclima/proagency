@@ -1,8 +1,27 @@
+import { memo } from "react";
 import { AnimatedDock } from "./ui/animated-dock";
 import { Instagram, MapPin } from 'lucide-react';
 import { FaWhatsapp } from "react-icons/fa";
 
-export default function Footer() {
+const dockItems = [
+  {
+    link: "https://instagram.com/proagency.ai/",
+    Icon: <Instagram className="w-6 h-6 text-white hover:text-red-400 transition-colors duration-200" />,
+    target: "_blank"
+  },
+  {
+    link: "https://wa.me/5511962661116",
+    Icon: <FaWhatsapp className="w-6 h-6 text-white hover:text-green-500 transition-colors duration-200" />,
+    target: "_blank"
+  },
+  {
+    link: "https://www.google.com/maps/place/Manoel+Viana,+RS,+97640-000/",
+    Icon: <MapPin className="w-6 h-6 text-white hover:text-orange-500 transition-colors duration-200" />,
+    target: "_blank"
+  }
+];
+
+const Footer = memo(() => {
   return (
     <footer className="w-full bg-gradient-to-br from-[#0f172a] to-[#181c2a] px-4 pt-12 pb-4">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between gap-8">
@@ -11,23 +30,7 @@ export default function Footer() {
       {/* Animated Dock centralizado */}
       <div className="flex justify-center w-full my-6">
         <AnimatedDock
-          items={[
-            {
-              link: "https://instagram.com/proagency.ai/",
-              Icon: <Instagram className="w-6 h-6 text-white hover:text-red-400 transition-colors duration-200" />,
-              target: "_blank"
-            },
-            {
-              link: "https://wa.me/5511962661116",
-              Icon: <FaWhatsapp className="w-6 h-6 text-white hover:text-green-500 transition-colors duration-200" />,
-              target: "_blank"
-            },
-            {
-              link: "https://www.google.com/maps/place/Manoel+Viana,+RS,+97640-000/",
-              Icon: <MapPin className="w-6 h-6 text-white hover:text-orange-500 transition-colors duration-200" />,
-              target: "_blank"
-            }
-          ]}
+          items={dockItems}
         />
       </div>
       {/* Copyright */}
@@ -41,4 +44,8 @@ export default function Footer() {
       </div>
     </footer>
   );
-} 
+});
+
+Footer.displayName = 'Footer';
+
+export default Footer;

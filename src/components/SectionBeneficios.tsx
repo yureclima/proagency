@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Monitor, Smartphone, ExternalLink } from "lucide-react";
 import { ElegantShape } from "@/components/ui/shape-landing-hero";
@@ -22,21 +23,165 @@ const projetos = [
   }
 ];
 
-export function SectionBeneficios() {
+const timelineData = [
+  {
+    id: 1,
+    title: "Planejamento",
+    date: "Jan 2024",
+    content: "Fase de planejamento do projeto e levantamento de requisitos.",
+    category: "Planejamento",
+    icon: Calendar,
+    relatedIds: [2],
+    status: "completed" as const,
+    energy: 100,
+  },
+  {
+    id: 2,
+    title: "Design",
+    date: "Fev 2024",
+    content: "Design UI/UX e arquitetura do sistema.",
+    category: "Design",
+    icon: FileText,
+    relatedIds: [1, 3],
+    status: "completed" as const,
+    energy: 90,
+  },
+  {
+    id: 3,
+    title: "Desenvolvimento",
+    date: "Mar 2024",
+    content: "Implementação das funcionalidades principais e testes.",
+    category: "Desenvolvimento",
+    icon: Code,
+    relatedIds: [2, 4],
+    status: "in-progress" as const,
+    energy: 60,
+  },
+  {
+    id: 4,
+    title: "Testes",
+    date: "Abr 2024",
+    content: "Testes de usuário e correção de bugs.",
+    category: "Testes",
+    icon: User,
+    relatedIds: [3, 5],
+    status: "pending" as const,
+    energy: 30,
+  },
+  {
+    id: 5,
+    title: "Entrega",
+    date: "Mai 2024",
+    content: "Deploy final e entrega do projeto.",
+    category: "Entrega",
+    icon: Clock,
+    relatedIds: [4],
+    status: "pending" as const,
+    energy: 10,
+  },
+];
+
+const ProjectCard = memo(({ projeto, index, onOpen }: { 
+  projeto: typeof projetos[0], 
+  index: number, 
+  onOpen: (index: number) => void 
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
+  const handleClick = useCallback(() => {
+    onOpen(index);
+  }, [index, onOpen]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.12 }}
+      className="w-full max-w-xl mx-auto"
+    >
+      {/* Desktop: botão interativo */}
+      <button
+        className="hidden md:block relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl mb-0 bg-[#181c23] group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-transform duration-300 md:cursor-pointer md:hover:scale-105"
+        onClick={handleClick}
+        aria-label={`Abrir preview do projeto ${projeto.titulo}`}
+        tabIndex={0}
+      >
+        <img
+          src={projeto.imagem}
+          alt={`Preview do site ${projeto.titulo}`}
+          className="w-full h-72 object-cover object-center pointer-events-none select-none transition-all duration-300"
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+        />
+        {/* Overlay gradiente escuro */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col justify-end p-6" />
+        <div className="absolute inset-0 flex flex-col justify-end p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full bg-sky-600/90 text-white text-xs font-semibold">{projeto.categoria}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-white drop-shadow-md">{projeto.titulo}</span>
+            {/* Botão como texto com drop shadow */}
+            <span className="flex items-center gap-1 text-base font-semibold text-white drop-shadow-lg group-hover:underline">
+              Ver Projeto <ExternalLink className="w-4 h-4" />
+            </span>
+          </div>
+        </div>
+      </button>
+      {/* Mobile: agora também abre modal ao tocar */}
+      <button
+        className="block md:hidden relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl mb-0 bg-[#181c23] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95 transition-transform duration-200"
+        onClick={handleClick}
+        aria-label={`Abrir preview do projeto ${projeto.titulo}`}
+        tabIndex={0}
+      >
+        <img
+          src={projeto.imagem}
+          alt={`Preview do site ${projeto.titulo}`}
+          className="w-full h-72 object-cover object-center pointer-events-none select-none transition-all duration-300"
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+        />
+        {/* Overlay gradiente escuro */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col justify-end p-6" />
+        <div className="absolute inset-0 flex flex-col justify-end p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full bg-sky-600/90 text-white text-xs font-semibold">{projeto.categoria}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-white drop-shadow-md">{projeto.titulo}</span>
+          </div>
+        </div>
+      </button>
+    </motion.div>
+  );
+});
+
+ProjectCard.displayName = 'ProjectCard';
+
+export const SectionBeneficios = memo(() => {
   const [mode, setMode] = useState<'desktop' | 'mobile'>("desktop");
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const handleOpen = (index: number) => {
+  const handleOpen = useCallback((index: number) => {
     setSelectedIndex(index);
     setMode('desktop');
     setOpen(true);
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false);
     setSelectedIndex(null);
-  };
+  }, []);
+
+  const handleModeChange = useCallback((newMode: 'desktop' | 'mobile') => {
+    setMode(newMode);
+  }, []);
 
   const selectedProject = selectedIndex !== null ? projetos[selectedIndex] : null;
 
@@ -117,6 +262,8 @@ export function SectionBeneficios() {
           animate={{ opacity: 0.05 }}
           transition={{ duration: 1.2 }}
           className="hidden md:block chat-bg-video"
+          loading="lazy"
+          decoding="async"
           style={{
             position: 'absolute',
             top: 0,
@@ -134,73 +281,14 @@ export function SectionBeneficios() {
         </div>
         {/* Cards */}
         <div className="w-full md:w-1/3 flex flex-col gap-8 items-center order-2 md:order-none" style={{position: 'relative', zIndex: 1}}>
-          {projetos.map((projeto, index) => {
-            const ref = useRef(null);
-            const isInView = useInView(ref, { once: true, margin: "-100px" });
-            return (
-              <motion.div
-                ref={ref}
-                key={projeto.titulo}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.7, delay: index * 0.12 }}
-                className="w-full max-w-xl mx-auto"
-              >
-                {/* Desktop: botão interativo */}
-                <button
-                  className="hidden md:block relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl mb-0 bg-[#181c23] group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-transform duration-300 md:cursor-pointer md:hover:scale-105"
-                  onClick={() => handleOpen(index)}
-                  aria-label={`Abrir preview do projeto ${projeto.titulo}`}
-                  tabIndex={0}
-                >
-                  <img
-                    src={projeto.imagem}
-                    alt={`Preview do site ${projeto.titulo}`}
-                    className="w-full h-72 object-cover object-center pointer-events-none select-none transition-all duration-300"
-                    draggable={false}
-                  />
-                  {/* Overlay gradiente escuro */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col justify-end p-6" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-3 py-1 rounded-full bg-sky-600/90 text-white text-xs font-semibold">{projeto.categoria}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-white drop-shadow-md">{projeto.titulo}</span>
-                      {/* Botão como texto com drop shadow */}
-                      <span className="flex items-center gap-1 text-base font-semibold text-white drop-shadow-lg group-hover:underline">
-                        Ver Projeto <ExternalLink className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </div>
-                </button>
-                {/* Mobile: agora também abre modal ao tocar */}
-                <button
-                  className="block md:hidden relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl mb-0 bg-[#181c23] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95 transition-transform duration-200"
-                  onClick={() => handleOpen(index)}
-                  aria-label={`Abrir preview do projeto ${projeto.titulo}`}
-                  tabIndex={0}
-                >
-                  <img
-                    src={projeto.imagem}
-                    alt={`Preview do site ${projeto.titulo}`}
-                    className="w-full h-72 object-cover object-center pointer-events-none select-none transition-all duration-300"
-                    draggable={false}
-                  />
-                  {/* Overlay gradiente escuro */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col justify-end p-6" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-3 py-1 rounded-full bg-sky-600/90 text-white text-xs font-semibold">{projeto.categoria}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-white drop-shadow-md">{projeto.titulo}</span>
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            );
-          })}
+          {projetos.map((projeto, index) => (
+            <ProjectCard 
+              key={projeto.titulo} 
+              projeto={projeto} 
+              index={index} 
+              onOpen={handleOpen} 
+            />
+          ))}
           {/* Modal global para o projeto selecionado */}
           <Dialog open={open} onOpenChange={val => !val && handleClose()}>
             <DialogContent className="max-w-3xl w-full p-0 bg-transparent border-none shadow-none flex flex-col items-center">
@@ -210,14 +298,14 @@ export function SectionBeneficios() {
                     <div className="flex gap-2">
                       <button
                         className={`p-2 rounded-lg border ${mode === 'desktop' ? 'bg-gray-900 text-pink-400 border-pink-400' : 'bg-gray-800 text-gray-400 border-transparent'} transition`}
-                        onClick={() => setMode('desktop')}
+                        onClick={() => handleModeChange('desktop')}
                         aria-label="Visualizar como desktop"
                       >
                         <Monitor className="w-5 h-5" />
                       </button>
                       <button
                         className={`p-2 rounded-lg border ${mode === 'mobile' ? 'bg-gray-900 text-yellow-400 border-yellow-400' : 'bg-gray-800 text-gray-400 border-transparent'} transition`}
-                        onClick={() => setMode('mobile')}
+                        onClick={() => handleModeChange('mobile')}
                         aria-label="Visualizar como mobile"
                       >
                         <Smartphone className="w-5 h-5" />
@@ -250,67 +338,13 @@ export function SectionBeneficios() {
         {/* Orbital timeline à direita - só desktop */}
         <div className="hidden md:flex w-1/3 h-[600px] items-center justify-center" style={{position: 'relative', zIndex: 1}}>
           <RadialOrbitalTimeline
-            timelineData={[
-              {
-                id: 1,
-                title: "Planejamento",
-                date: "Jan 2024",
-                content: "Fase de planejamento do projeto e levantamento de requisitos.",
-                category: "Planejamento",
-                icon: Calendar,
-                relatedIds: [2],
-                status: "completed",
-                energy: 100,
-              },
-              {
-                id: 2,
-                title: "Design",
-                date: "Fev 2024",
-                content: "Design UI/UX e arquitetura do sistema.",
-                category: "Design",
-                icon: FileText,
-                relatedIds: [1, 3],
-                status: "completed",
-                energy: 90,
-              },
-              {
-                id: 3,
-                title: "Desenvolvimento",
-                date: "Mar 2024",
-                content: "Implementação das funcionalidades principais e testes.",
-                category: "Desenvolvimento",
-                icon: Code,
-                relatedIds: [2, 4],
-                status: "in-progress",
-                energy: 60,
-              },
-              {
-                id: 4,
-                title: "Testes",
-                date: "Abr 2024",
-                content: "Testes de usuário e correção de bugs.",
-                category: "Testes",
-                icon: User,
-                relatedIds: [3, 5],
-                status: "pending",
-                energy: 30,
-              },
-              {
-                id: 5,
-                title: "Entrega",
-                date: "Mai 2024",
-                content: "Deploy final e entrega do projeto.",
-                category: "Entrega",
-                icon: Clock,
-                relatedIds: [4],
-                status: "pending",
-                energy: 10,
-              },
-            ]}
+            timelineData={timelineData}
             className="bg-transparent h-full"
           />
         </div>
       </div>
     </section>
   );
-} 
+});
+
+SectionBeneficios.displayName = 'SectionBeneficios';

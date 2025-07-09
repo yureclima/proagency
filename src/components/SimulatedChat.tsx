@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import './SimulatedChat.css';
 import { useInView } from 'framer-motion';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -13,7 +13,7 @@ interface Message {
 
 let typingTimeout: NodeJS.Timeout | null = null;
 
-export const SimulatedChat: React.FC = () => {
+const SimulatedChat: React.FC = memo(() => {
   const [messages, setMessages] = useState<Message[]>([
     { text: 'Olá! Como posso ajudar você hoje?', sender: 'bot' },
   ]);
@@ -28,21 +28,21 @@ export const SimulatedChat: React.FC = () => {
   // Detecta se é desktop
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
 
-  // Handlers para abrir modal no desktop
-  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleInputFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     if (isDesktop) {
       e.preventDefault();
       setIsChatModalOpen(true);
     }
-  };
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  }, [isDesktop]);
+
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (isDesktop) {
       e.preventDefault();
       setIsChatModalOpen(true);
     } else if (e.key === 'Enter') {
       handleSend();
     }
-  };
+  }, [isDesktop]);
 
   useEffect(() => {
     return () => {
@@ -55,7 +55,7 @@ export const SimulatedChat: React.FC = () => {
     return reply.match(/[^.!?]+[.!?]?/g)?.map(s => s.trim()).filter(Boolean) || [reply];
   }
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     if (!input.trim() || loading) return;
     if (typingTimeout) clearTimeout(typingTimeout); // Interrompe digitação do bot se usuário enviar nova msg
     setBotTyping(false);
@@ -100,11 +100,11 @@ export const SimulatedChat: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, loading]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSend();
-  };
+  }, [handleSend]);
 
   return (
     <>
@@ -203,6 +203,8 @@ export const SimulatedChat: React.FC = () => {
       </div>
     </>
   );
-};
+});
+
+SimulatedChat.displayName = 'SimulatedChat';
 
 export default SimulatedChat; 

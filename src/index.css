@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Critical CSS inlined */
+.hero-section {
+  contain: layout style paint;
+}
+
+.card-grid {
+  contain: layout;
+}
+
+/* Optimize animations */
+.animate-gradient-x,
+.animate-spotlight {
+  will-change: background-position, transform;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient-x,
+  .animate-spotlight,
+  .glow-tech {
+    animation: none !important;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
